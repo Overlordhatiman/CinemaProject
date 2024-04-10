@@ -1,0 +1,124 @@
+﻿@model CinemaProject.Models.Data.Film
+
+<h2>Film Details</h2>
+
+<div>
+    <h4>Film</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Director)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Director)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Release)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Release)
+        </dd>
+    </dl>
+</div>
+
+<div class="categories-container">
+    <div class="category-list">
+        <h4>Categories in this film</h4>
+        <hr />
+        <div id="categoriesInFilm" class="category-list">
+            @foreach (var category in ViewBag.CategoriesInFilm)
+            {
+                <div class="category" data-category-id="@category.Id">@category.Name</div>
+            }
+        </div>
+    </div>
+
+    <div class="category-list">
+        <h4>Categories</h4>
+        <hr />
+        <div id="allCategories" class="category-list">
+            @foreach (var category in ViewBag.AllCategories)
+            {
+                <div class="category" data-category-id="@category.Id">@category.Name</div>
+            }
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<div>
+    <h4>Selected Categories</h4>
+    <div class="selected-categories-container">
+        <div id="selectedCategories">
+             <!-- Selected categories will be dynamically added here -->
+        </div>
+    </div>
+
+    <div class="save-button-container">
+        <button id="saveCategories">Save Categories</button>
+    </div>
+    <hr />
+</div>
+
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</p>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Store selected categories
+            var selectedCategories = [];
+
+            // Click event handler for categories
+            $('#allCategories .category, #categoriesInFilm .category').click(function () {
+                var categoryId = $(this).data('category-id');
+                var categoryName = $(this).text();
+
+                // Check if category is already selected
+                if (!selectedCategories.includes(categoryId)) {
+                    selectedCategories.push(categoryId);
+                    $('#selectedCategories').append('<div class="selected-category" data-category-id="' + categoryId + '">' + categoryName + '</div>');
+                    $(this).hide();
+                }
+            });
+
+            $('#selectedCategories').on('click', '.selected-category', function () {
+                var categoryId = $(this).data('category-id');
+                selectedCategories = selectedCategories.filter(function (id) {
+                    return id !== categoryId;
+                });
+                $('#allCategories .category[data-category-id="' + categoryId + '"], #categoriesInFilm .category[data-category-id="' + categoryId + '"]').show();
+                $(this).remove();
+            });
+
+            // Click event handler for saving categories
+            $('#saveCategories').click(function () {
+
+                $.ajax({
+                    url: '/Film/AddCategoryToFilm',
+                    type: 'POST',
+                    data: {
+                        filmId: @Model.Id,
+                        categoryIds: selectedCategories
+                    },
+                    success: function (response) {
+                        alert('Categories saved successfully.');
+                        location.reload();
+                    },
+                    error: function () {
+                        alert('Error occurred while saving categories.');
+                    }
+                });
+            });
+        });
+    </script>
+}

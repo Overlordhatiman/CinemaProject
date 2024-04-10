@@ -1,0 +1,31 @@
+﻿@model CinemaProject.Models.Data.Film
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>Create Film</h2>
+
+<form asp-action="Create">
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Director" class="control-label"></label>
+        <input asp-for="Director" class="form-control" />
+        <span asp-validation-for="Director" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Release" class="control-label"></label>
+        <input type="date" asp-for="Release" class="form-control" />
+        <span asp-validation-for="Release" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" />
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

@@ -1,0 +1,147 @@
+﻿@model IEnumerable<CinemaProject.Models.Data.Film>
+
+<h2>Film Index</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<div class="filter-row">
+    <div class="filter-group">
+        <label for="sortByDate">Sort by Date:</label>
+        <select id="sortByDate">
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <label for="filterByDirector">Filter by Director:</label>
+        <input type="text" id="filterByDirector">
+    </div>
+
+    <div class="filter-group">
+        <label for="filterByCategory">Filter by Category:</label>
+        <select id="filterByCategory">
+            <option value="">All</option>
+            @foreach (var category in ViewBag.Categories)
+            {
+                <option value="@category.Id">@category.Name</option>
+            }
+        </select>
+    </div>
+</div>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Director
+            </th>
+            <th>
+                Release
+            </th>
+            <th>
+                Categories
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="filmList">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Director)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Release.Date)
+                </td>
+                <td>
+                    @foreach (var category in item.FilmCategories)
+                    {
+                        <span>@category.Category.Name</span><br />
+                    }
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts
+{
+    <script>
+        // Sort films by date
+        $('#sortByDate').change(function () {
+            var direction = $(this).val();
+            var films = $('#filmList tr').get();
+            films.sort(function (a, b) {
+                var dateA = parseSortableDate($(a).find('td:eq(2)').text());
+                var dateB = parseSortableDate($(b).find('td:eq(2)').text());
+                if (direction === 'asc') {
+                    return dateA > dateB;
+                } else {
+                    return dateB > dateA;
+                }
+            });
+            $('#filmList').empty().append(films);
+        });
+
+        function parseSortableDate(dateString) {
+            var parts = dateString.split(/[ .:]+/);
+            return parts[2] + '-' + parts[1] + '-' + parts[0] + 'T' + parts[3] + ':' + parts[4] + ':' + parts[5];
+        }
+
+        // Filter films by director
+        $('#filterByDirector').keyup(function () {
+            var director = $(this).val().toLowerCase();
+            $('#filmList tr').each(function () {
+                var directorText = $(this).find('td:eq(1)').text().toLowerCase();
+                if (directorText.indexOf(director) > -1) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+
+        // Filter films by category
+        $('#filterByCategory').change(function () {
+            var selectedCategory = $(this).find('option:selected').text();
+            $('#filmList tr').each(function () {
+                var filmCategories = $(this).find('td:eq(3)').find('span');
+                var categoryFound = false;
+                filmCategories.each(function () {
+                    var categoryName = $(this).text().trim();
+                console.log(categoryName);
+                console.log(selectedCategory);
+                console.log(categoryName === selectedCategory);
+                    if (categoryName === selectedCategory || selectedCategory === 'All') {
+                        categoryFound = true;
+                        return;
+                    }
+                });
+                if (categoryFound || selectedCategory === 'All') {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+
+
+
+    </script>
+}
