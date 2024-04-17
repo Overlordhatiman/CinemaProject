@@ -1,6 +1,5 @@
 using CinemaProject.Models.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
 using System.Reflection;
 
 namespace CinemaProject
@@ -12,11 +11,6 @@ namespace CinemaProject
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllersWithViews();
-
-            builder.Services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Cinema API Name", Version = "v1" });
-            });
 
             builder.Services.AddDbContext<CinemaContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -31,15 +25,9 @@ namespace CinemaProject
 
             }
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Cinema API V1");
-                c.RoutePrefix = string.Empty;
-            });
+            app.UseStaticFiles();
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
 
             app.UseRouting();
 
@@ -47,7 +35,8 @@ namespace CinemaProject
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Home}/{action=Index}/{id?}",
+                new { controller = "Home", action = "Index" });
 
             app.Run();
         }
